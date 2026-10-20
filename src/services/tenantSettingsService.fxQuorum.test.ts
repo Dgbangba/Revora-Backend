@@ -24,11 +24,12 @@ class FakeRepo {
     return this.rows.get(tenantId) ?? null;
   }
 
-  async upsertSettings(tenantId: string, settings: Record<string, unknown>): Promise<TenantSettingsRow> {
+  async updateSettings(tenantId: string, settings: Record<string, unknown>): Promise<TenantSettingsRow> {
     const existing = this.rows.get(tenantId);
     const row: TenantSettingsRow = {
       tenant_id: tenantId,
       settings,
+      session_policy: existing?.session_policy ?? 'lax',
       created_at: existing?.created_at ?? new Date(),
       updated_at: new Date(),
     };

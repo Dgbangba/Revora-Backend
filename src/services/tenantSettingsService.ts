@@ -79,7 +79,7 @@ export class TenantSettingsService {
       pending_threshold_change: pendingChange,
     };
 
-    await this.tenantSettingsRepo.upsertSettings(tenantId, updatedSettings);
+    await this.tenantSettingsRepo.updateSettings(tenantId, updatedSettings);
 
     await this.auditRepo.record({
       id: `audit_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
@@ -139,7 +139,7 @@ export class TenantSettingsService {
       pending_threshold_change: null, // Clear pending proposal
     };
 
-    const updatedRow = await this.tenantSettingsRepo.upsertSettings(tenantId, updatedSettings);
+    const updatedRow = await this.tenantSettingsRepo.updateSettings(tenantId, updatedSettings);
 
     await this.auditRepo.record({
       id: `audit_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
@@ -187,7 +187,7 @@ export class TenantSettingsService {
       pending_threshold_change: null,
     };
 
-    const updatedRow = await this.tenantSettingsRepo.upsertSettings(tenantId, updatedSettings);
+    const updatedRow = await this.tenantSettingsRepo.updateSettings(tenantId, updatedSettings);
 
     await this.auditRepo.record({
       id: `audit_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
@@ -264,7 +264,7 @@ export class TenantSettingsService {
       pending_fx_quorum_change: pending,
     };
 
-    await this.tenantSettingsRepo.upsertSettings(tenantId, updatedSettings);
+    await this.tenantSettingsRepo.updateSettings(tenantId, updatedSettings);
 
     await this.auditRepo.record({
       id: `audit_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
@@ -327,7 +327,7 @@ export class TenantSettingsService {
       pending_fx_quorum_change: null,
     };
 
-    const updatedRow = await this.tenantSettingsRepo.upsertSettings(tenantId, updatedSettings);
+    const updatedRow = await this.tenantSettingsRepo.updateSettings(tenantId, updatedSettings);
 
     await this.auditRepo.record({
       id: `audit_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
@@ -378,7 +378,7 @@ export class TenantSettingsService {
       pending_fx_quorum_change: null,
     };
 
-    const updatedRow = await this.tenantSettingsRepo.upsertSettings(tenantId, updatedSettings);
+    const updatedRow = await this.tenantSettingsRepo.updateSettings(tenantId, updatedSettings);
 
     await this.auditRepo.record({
       id: `audit_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,

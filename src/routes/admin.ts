@@ -190,9 +190,7 @@ export function createAdminRouter(
             await sessionPolicyValidator.validateStrictOptIn(tenantId);
           }
 
-          const settingsRow = await tenantSettingsRepo.findByTenantId(tenantId);
-          const settings = settingsRow ? settingsRow.settings : {};
-          const updated = await tenantSettingsRepo.upsertSettings(tenantId, settings, policy);
+          const updated = await tenantSettingsRepo.setSessionPolicy(tenantId, policy);
           
           res.status(200).json({ session_policy: updated.session_policy });
         } catch (error) {
