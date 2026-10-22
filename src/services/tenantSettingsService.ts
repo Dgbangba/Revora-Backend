@@ -4,6 +4,7 @@ import {
   FxQuorumConfig,
   FxQuorumTenantConfig,
 } from './fxQuorumEvaluator';
+import { Errors } from '../lib/errors';
 
 export interface PendingThresholdChange {
   id: string;
@@ -55,15 +56,12 @@ export class TenantSettingsService {
     proposerUserId: string,
     reason: string
   ): Promise<PendingThresholdChange> {
-    if (proposedThreshold < 0 || proposedThreshold > 1) {
+    if (!Number.isFinite(proposedThreshold) || proposedThreshold < 0 || proposedThreshold > 1) {
       throw new Error('Jaro-Winkler threshold must be between 0.0 and 1.0');
     }
     if (!reason || reason.trim().length === 0) {
       throw new Error('Change reason is required for dual-control approval');
     }
-
-    const row = await this.tenantSettingsRepo.findByTenantId(tenantId);
-    const currentSettings = row?.settings ?? {};
 
     const pendingChange: PendingThresholdChange = {
       id: `thresh_req_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
@@ -113,7 +111,8 @@ export class TenantSettingsService {
    */
   async approveSanctionsThreshold(
     tenantId: string,
-    approverUserId: string
+    approverUserId: string,
+    requestId: string,
   ): Promise<TenantSettingsRow> {
     const row = await this.tenantSettingsRepo.findByTenantId(tenantId);
     if (!row || !row.settings?.pending_threshold_change) {
@@ -151,7 +150,7 @@ export class TenantSettingsService {
       details: {
         tenant_id: tenantId,
         previous_threshold: previousThreshold,
-        new_threshold: newThreshold,
+        new_threshold: pending.proposed_threshold,
         proposer_id: pending.proposer_id,
         approver_id: approverUserId,
         request_id: pending.id,
@@ -174,7 +173,8 @@ export class TenantSettingsService {
   async rejectSanctionsThreshold(
     tenantId: string,
     rejecterUserId: string,
-    reason: string
+    reason: string,
+    requestId: string,
   ): Promise<TenantSettingsRow> {
     const row = await this.tenantSettingsRepo.findByTenantId(tenantId);
     if (!row || !row.settings?.pending_threshold_change) {
@@ -245,9 +245,6 @@ export class TenantSettingsService {
       throw new Error('Change reason is required for dual-control approval');
     }
 
-    const row = await this.tenantSettingsRepo.findByTenantId(tenantId);
-    const currentSettings = (row?.settings ?? {}) as Record<string, unknown>;
-
     const pending: PendingFxQuorumChange = {
       id: `fxq_req_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
       proposed_k: k,
@@ -302,6 +299,7 @@ export class TenantSettingsService {
   async approveFxQuorumConfig(
     tenantId: string,
     approverUserId: string,
+    requestId: string,
   ): Promise<TenantSettingsRow> {
     const row = await this.tenantSettingsRepo.findByTenantId(tenantId);
     const pending = row?.settings?.pending_fx_quorum_change as PendingFxQuorumChange | undefined;
@@ -366,6 +364,7 @@ export class TenantSettingsService {
     tenantId: string,
     rejecterUserId: string,
     reason: string,
+    requestId: string,
   ): Promise<TenantSettingsRow> {
     const row = await this.tenantSettingsRepo.findByTenantId(tenantId);
     const pending = row?.settings?.pending_fx_quorum_change as PendingFxQuorumChange | undefined;

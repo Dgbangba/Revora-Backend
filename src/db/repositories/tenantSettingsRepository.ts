@@ -1,4 +1,5 @@
-import { Pool, QueryResult } from 'pg';
+import { Pool, PoolClient, QueryResult } from 'pg';
+import { withTransaction } from '../transaction';
 
 export interface TenantSettingsRow {
   tenant_id: string;
@@ -10,6 +11,10 @@ export interface TenantSettingsRow {
 
 export class TenantSettingsRepository {
   constructor(private readonly db: Pool) {}
+
+  withTransaction<T>(callback: (client: PoolClient) => Promise<T>): Promise<T> {
+    return withTransaction(this.db, callback);
+  }
 
   async findByTenantId(tenantId: string): Promise<TenantSettingsRow | null> {
     const result: QueryResult = await this.db.query(
